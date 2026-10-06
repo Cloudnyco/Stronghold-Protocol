@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Battle perf · 卫戍协议：盟约</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%230c0f0e'/%3E%3Cpath fill='%234ed8af' d='M5 3h3v2h2V3h4v2h2V3h3v5l-2 2v7l2 2v2H5v-2l2-2v-7L5 8z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <script type="importmap">
+    { "imports": { "preact": "/vendor/preact.module.js", "preact/hooks": "/vendor/hooks.module.js", "htm": "/vendor/htm.module.js" } }
+  </script>
+  <!-- PixiJS 7 + pixi-spine as classic scripts (global PIXI / PIXI.spine), like the game page -->
+  <script src="/vendor/pixi.min.js"></script>
+  <script src="/vendor/pixi-spine.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0a0e0d; overflow: hidden; }
+    #field { position: fixed; inset: 0; }
+    .bp-panel {
+      position: fixed; right: 12px; top: 12px; z-index: 5; display: flex; flex-direction: column; gap: 8px; max-width: min(420px, calc(100vw - 24px));
+      padding: 10px 12px; background: rgba(12, 16, 15, .88); border: 1px solid #2f3a35; color: #c3cbc7;
+      font: 13px/1.4 "Noto Sans SC", system-ui, sans-serif;
+    }
+    .bp-panel.is-hidden { display: none; }
+    .bp-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .bp-panel select, .bp-panel button { background: #1e2421; color: #f2f2f2; border: 1px solid #3e4b45; padding: 4px 8px; font: inherit; cursor: pointer; }
+    .bp-panel button:disabled { opacity: .5; cursor: default; }
+    .bp-live { font: 12px/1.45 ui-monospace, Consolas, monospace; color: #8a948f; white-space: pre; }
+    .bp-out { font: 12px/1.45 ui-monospace, Consolas, monospace; color: #e6ece9; white-space: pre-wrap; background: #121715; border: 1px solid #2f3a35; padding: 6px 8px; max-height: 40vh; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div id="field"></div>
+  <div class="bp-panel" id="panel">
+    <div class="bp-row"><strong>战斗性能测试</strong></div>
+    <div class="bp-row">
+      <select id="spec" aria-label="战斗"></select>
+      <select id="quality" aria-label="画质"><option value="high">高画质</option><option value="medium">中画质</option><option value="low">低画质</option></select>
+      <button id="restart" type="button">重新开始</button>
+    </div>
+    <div class="bp-live" id="live">加载中…</div>
+    <div class="bp-row"><button id="measure" type="button" disabled>测量 10 秒</button><button id="copy" type="button" hidden>复制结果</button></div>
+    <div class="bp-out" id="out" hidden></div>
+  </div>
+  <script type="module" src="/dev/battle-perf.js"></script>
+</body>
+</html>
