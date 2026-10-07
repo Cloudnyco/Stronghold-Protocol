@@ -15,6 +15,7 @@ import { createFieldView } from '../js/render/app.js';
 import { data } from '../js/data.js';
 import { assets } from '../js/assets.js';
 import { createBattleRunner } from '../js/battle/runner.js';
+import { round, frameFigures } from './frame-stats.js';
 
 const $ = (id) => document.getElementById(id);
 const q = new URLSearchParams(location.search);
@@ -26,8 +27,6 @@ try {
   new PerformanceObserver((list) => { for (const e of list.getEntries()) longTasks.push(e.duration); }).observe({ type: 'longtask', buffered: true });
 } catch { /* not supported */ }
 
-const round = (v, d = 1) => (Number.isFinite(v) ? Math.round(v * 10 ** d) / 10 ** d : null);
-
 // Frame-time budgets (ms) shared by the verdict, the strip colours and the stutter share: 16.7 / 33.3 ms are 60 / 30 FPS.
 // The 60 FPS budget allows 5% for vsync jitter (a 60 Hz display measures frames of 16.6–17.4 ms); a frame over the 30 FPS
 // budget counts as a stutter frame.
@@ -38,6 +37,9 @@ const QUALITY_NAME = { high: '高', medium: '中', low: '低' };
 /**
  * Frame figures over `ms` of animation frames: average fps, frame-time percentiles, the share of frames over 33.4 ms
  * (below 30 fps), long tasks, the sim's ticks and their cost (runner.stats), and the view's own CPU / render times.
+ * The first frame time is partial (from the call to the first frame) and dropped, so the sample runs for at least two
+ * frames whatever `ms` is: a sample that saw a single frame (a short `ms`, a frame longer than `ms`) had no frame time
+ * left and divided by zero.
  */
 perf.sample = (ms = 10000) => new Promise((resolve) => {
   const deltas = [];
@@ -48,18 +50,14 @@ perf.sample = (ms = 10000) => new Promise((resolve) => {
   const step = (t) => {
     deltas.push(t - last);
     last = t;
-    if (t - t0 < ms) { requestAnimationFrame(step); return; }
+    if (t - t0 < ms || deltas.length < 2) { requestAnimationFrame(step); return; }
     deltas.shift();
-    deltas.sort((a, b) => a - b);
-    const pick = (p) => deltas[Math.min(deltas.length - 1, Math.floor(deltas.length * p))];
-    const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
     const r1 = perf.runner.stats();
     const v = perf.view.stats();
     const lt = longTasks.slice(lt0);
     const ticks = r1.ticks - r0.ticks;
     resolve({
-      fps: round(1000 / avg), p50: round(pick(0.5)), p95: round(pick(0.95)), p99: round(pick(0.99)),
-      over33: round((deltas.filter((x) => x > FRAME_30_MS).length / deltas.length) * 100),
+      ...frameFigures(deltas, FRAME_30_MS),
       longTasks: lt.length, longTaskMs: Math.round(lt.reduce((a, b) => a + b, 0)),
       ticks, simMs: round(r1.stepMs - r0.stepMs), simMsPerTick: ticks > 0 ? round((r1.stepMs - r0.stepMs) / ticks, 3) : null,
       viewCpuMs: v.cpuMs, renderMs: v.renderMs, units: v.units, lod: v.lod, particles: v.particles,

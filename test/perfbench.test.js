@@ -1,6 +1,7 @@
 // test/perfbench.test.js — the battle perf tooling: the committed specs of public/dev/perf (tools/capture-specs.mjs) still
-// build and run with the current data and sim, the capture helpers, and tools/perfbench.mjs's profile summary and
-// per-platform Chrome flags. The page itself: test/render/battle-perf.browser.test.js (opt-in).
+// build and run with the current data and sim, the capture helpers, the perf page's frame figures (public/dev/frame-stats.js),
+// and tools/perfbench.mjs's profile summary and per-platform Chrome flags. The page itself:
+// test/render/battle-perf.browser.test.js (opt-in).
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,6 +13,7 @@ import { DataSource } from '../server/sim/simdata.js';
 import { createBattleFromSpec } from '../server/sim/spec.js';
 import { specMeta, pickDefaults, cleanStart } from '../tools/capture-specs.mjs';
 import { aggregateProfile, gpuArgs, areaOf } from '../tools/perfbench.mjs';
+import { frameFigures } from '../public/dev/frame-stats.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = path.join(ROOT, 'public/dev/perf');
@@ -64,6 +66,18 @@ describe('tools/capture-specs.mjs helpers', () => {
   test('cleanStart: from the start, authoritative, no capture clocks', () => {
     const c = cleanStart(start('normal', 1));
     assert.deepEqual([c.elapsed, c.startAt, c.serverNow, c.authoritative, c.watch, c.done], [0, 0, 0, true, false, false]);
+  });
+});
+
+describe("the perf page's frame figures (public/dev/frame-stats.js)", () => {
+  test('average fps, nearest-rank percentiles and the stutter share of a sample', () => {
+    assert.deepEqual(frameFigures([40, 16, 17, 17], 33.4), { fps: 44.4, p50: 17, p95: 40, p99: 40, over33: 25 });
+  });
+
+  test('one frame time is enough; no frame time gives null figures, not NaN / Infinity (the single-frame sample)', () => {
+    assert.deepEqual(frameFigures([16.7], 33.4), { fps: 59.9, p50: 16.7, p95: 16.7, p99: 16.7, over33: 0 });
+    assert.deepEqual(frameFigures([], 33.4), { fps: null, p50: null, p95: null, p99: null, over33: null });
+    assert.equal(frameFigures([0, 0], 33.4).fps, null);
   });
 });
 

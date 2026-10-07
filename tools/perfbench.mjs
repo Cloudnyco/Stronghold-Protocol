@@ -130,7 +130,7 @@ async function main() {
       await page.setViewport({ width, height, deviceScaleFactor: dpr });
       await page.goto(`http://127.0.0.1:${srv.port}/dev/battle-perf.html?spec=${encodeURIComponent(spec)}&quality=${quality}&panel=0`);
       await page.waitForFunction('window.__perf && (window.__perf.ready || window.__perf.error)', { timeout: 60000 });
-      const err = await page.evaluate(() => window.__perf.error);
+      const err = await page.evaluate(() => globalThis.__perf.error);
       if (err) { console.log(`${spec}: ${err.split('\n')[0]}`); await page.close(); continue; }
       const cdp = await page.createCDPSession();
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
@@ -140,7 +140,7 @@ async function main() {
         await cdp.send('Profiler.setSamplingInterval', { interval: 200 });
         await cdp.send('Profiler.start');
       }
-      const s = await page.evaluate((ms) => window.__perf.sample(ms), sample * 1000);
+      const s = await page.evaluate((ms) => globalThis.__perf.sample(ms), sample * 1000);
       let summary = null;
       if (profileOn) {
         const { profile } = await cdp.send('Profiler.stop');

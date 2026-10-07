@@ -48,12 +48,14 @@ describe('battle perf page in headless Chrome', { skip }, () => {
       assert.equal(await page.evaluate(() => window.__perf.error), null);
       await new Promise((r) => setTimeout(r, 3000));
       const r = await page.evaluate(() => window.__perf.sample(2000));
+      const short = await page.evaluate(() => window.__perf.sample(0)); // still a full frame time, not 0 / 0
       await page.close();
       assert.deepEqual(problems, []);
       assert.ok(r.fps > 10, `fps ${r.fps}`);
       assert.ok(r.ticks > 60, `sim ticks ${r.ticks}`);
       assert.ok(r.units > 0, `units ${r.units}`);
       assert.ok(Number.isFinite(r.p95) && r.p95 > 0);
+      assert.ok(Number.isFinite(short.fps) && short.fps > 0 && short.p95 > 0, `sample(0): ${JSON.stringify(short)}`);
     });
   }
 });
