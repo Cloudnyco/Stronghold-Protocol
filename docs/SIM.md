@@ -520,6 +520,9 @@ Aggregation: `ATK/DEF/maxHp = (base + Σflat) × (1 + Σpct) × Πmul`, for ATK 
 percentages: `ATK = ((base + ΣatkFlat) × (1 + ΣatkPct) + ΣatkFinal) × ΠatkMul`; `res = clamp((base + ΣresFlat) × ΠresMul, 0, 100)`;
 `aspd = clamp(base + Σaspd, 20, 600)` (floor 20: PRTS 数值范围 ATTACK_SPEED 默认下限; user playtest #6); `interval = bat × (1 + ΣbatPct) × 100 / aspd`; `moveSpeed = (base + ΣmoveFlat) × ΠmoveMul`;
 tiles/s = `moveSpeed × MOVE_SCALE (0.5)`. A maxHp change keeps the HP ratio. Elite stats (module included) come from data.
+The attack cooldown `atkCd` starts at `interval` and counts down by `TICK`; what is left within 1e-9 of 0 is 0
+(`ai.js attackCountdown`, the tolerance of skill `timeLeft`, buff intervals and `every()`), so an interval of a whole
+number of ticks takes exactly that many: 1 s = 30 ticks (floating point alone leaves 2.1e-16 after thirty steps of 1/30).
 
 **Which bucket (PRTS 游戏数据基础 属性基本公式 / 作战机制, DESIGN §20.10).** `Σpct` is the official **直接乘算** class — its
 values are summed (`A = (A₀ + D_p)(1 + D_t)`, D_t = t₁ + … + tₙ): a skill's or talent's "攻击力+X%" **and** every "+X%"
@@ -869,7 +872,8 @@ instance) and skip `'counter'` / `'reflect'` damage. When the guard trips, the l
   PRTS 异常效果 晕眩 names no SP effect — community report #18). Attack-type SP: attacks made
   by the skill (the pending "next attack" of an instant/charge skill, every shot of a timed skill including the one that
   ends it) recover nothing, so a cost-N skill fires every **N+1** attacks (AK). Charges (`maxChargeTime > 1`):
-  SP fills to cost → +1 charge (SP restarts) until charges are full (then SP stays full).
+  SP fills to cost → +1 charge (SP restarts) until charges are full (then SP stays full). SP within 1e-9 of the cost is
+  the cost (the float sum of the 1/30-SP time gains can stop 2.5e-14 short of it).
 - Triggers (`skill.trigger.rule` in data — the official 技能策略, PRTS 卫戍协议/帮助 §作战阶段 技能操作, resolved by
   `tools/build-data.mjs resolveTrigger`: charId rows by skill index; the class rows (重装 / 执旗手 / 战术家 / 吟游者 / 解放者 /
   阵法术师) for **every MANUAL skill** of the class; SKILL_RANGE for a MANUAL skill with a 技能范围 of its own; ACTIVE_RANGE
