@@ -32,6 +32,7 @@
     "build-data": "node tools/build-data.mjs",
     "assets": "node tools/vendor.mjs && node tools/fetch-assets.mjs",
     "postinstall": "node tools/vendor.mjs",
+    "link-aue": "node tools/link-aue.mjs",
     "setup": "node tools/setup.mjs",
     "doctor": "node tools/doctor.mjs",
     "launch": "node scripts/launch.mjs",
