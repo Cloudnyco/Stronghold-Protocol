@@ -100,7 +100,9 @@ async function kitsOf(dir, spec) {
   for (const u of spec.players.flatMap((p) => p.units)) {
     const charId = data.chess[u.chessId]?.charId, file = files.find((f) => f.startsWith(`${String(u.chessId).replace(/_[ab]$/, '')}-`));
     if (!charId || !file) continue;
-    const factory = (await import(pathToFileURL(join(ops, file)).href)).default?.[u.chessId];
+    // keyed as Stronghold's kitFor looks a chess kit up: the form's baseId (the _a form), the exact id, the bare id
+    const mod = (await import(pathToFileURL(join(ops, file)).href)).default ?? {};
+    const factory = [data.chess[u.chessId]?.baseId, u.chessId, String(u.chessId).replace(/_[ab]$/, '')].map((k) => mod[k]).find(Boolean);
     if (typeof factory === 'function') kits[charId] = factory;
   }
   return kits;

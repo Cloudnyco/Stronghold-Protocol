@@ -50,18 +50,19 @@ cards, bounties or 练度. `--chess-kits` and `--kits` read the Stronghold commi
 
 Median of AUE's total damage over Stronghold's, and enemies killed (AUE / Stronghold), by round band:
 
-| Rounds | Battles | AUE's own operators | Stronghold's chess kits on AUE | Enemies AUE covers only |
-|---|---|---|---|---|
-| 2–4 | 8 | ×1.07, 146 / 189 | ×1.08, 152 / 189 | ×1.09, 147 / 139 |
-| 6–8 | 14 | ×0.83, 420 / 752 | ×0.78, 421 / 752 | ×1.04, 195 / 236 |
-| 10 | 10 | ×0.66, 267 / 484 | ×0.78, 338 / 484 | ×0.84, 272 / 296 |
-| 12–13 | 17 | ×0.47, 380 / 968 | ×0.49, 441 / 968 | ×0.51, 395 / 836 |
+| Rounds | Battles | AUE's own operators | Stronghold's chess kits on AUE | AUE's operators, enemies AUE covers only | Chess kits, enemies AUE covers only |
+|---|---|---|---|---|---|
+| 2–4 | 8 | ×1.03, 146 / 189 | ×1.04, 144 / 189 | ×1.08, 147 / 139 | ×1.03, 138 / 139 |
+| 6–8 | 14 | ×0.79, 420 / 752 | ×0.95, 475 / 752 | ×1.03, 195 / 236 | ×1.03, 199 / 236 |
+| 10 | 10 | ×0.62, 267 / 484 | ×0.80, 382 / 484 | ×0.83, 272 / 296 | ×0.89, 285 / 296 |
+| 12–13 | 17 | ×0.47, 380 / 968 | ×0.76, 672 / 968 | ×0.51, 395 / 836 | ×0.76, 719 / 836 |
 
 - Early rounds agree. The gap grows with the round.
-- The pieces' implementation matters little: AUE's own operators (data-driven talents and skills) and Stronghold's
-  129 chess kits on AUE give about the same results.
-- The enemies matter most: the 49 battles meet 170 enemy abilities AUE has no behaviour for yet (the most frequent:
+- The pieces matter: with Stronghold's own chess kits through AUE's compat layer the top rounds rise from ×0.47 to
+  ×0.76. A chess kit holds a piece's special parts; the common skill mechanics (several targets, areas, projectiles,
+  attack speed and interval changes …) are still AUE's, and that is where most of the remaining per-piece difference lies.
+- The enemies matter too: the 49 battles meet 170 enemy abilities AUE has no behaviour for yet (the most frequent:
   `refracting`, `DeadSpawn`, `EpDamage`, `stuncombat`, `Shield`, `PollutedDie`, `Bleeding`). With only the enemies AUE
-  covers, rounds 2–8 agree within 10 %.
-- The top rounds still differ by half: the top pieces' own mechanics (AUE does not yet have every talent of 浊心斯卡蒂,
-  琳琅诗怀雅, 荒芜拉普兰德, 引星棘刺, 缄默德克萨斯, 乌尔比安 …) and, at ×3.6 enemy HP, a small gap that snowballs.
+  covers and the chess kits, rounds 2–8 agree within 5 %.
+- The top rounds still differ by a quarter: the top pieces' own mechanics (浊心斯卡蒂, 琳琅诗怀雅, 荒芜拉普兰德, 引星棘刺,
+  缄默德克萨斯, 乌尔比安 …) and, at ×3.6 enemy HP, a small gap that snowballs.
